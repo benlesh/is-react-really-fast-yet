@@ -18,3 +18,12 @@
 .nf-graph-content-bg {
   fill: white;
 }
+
+
+
+.nf-y-axis-tick > text {
+  font-family: Consolas, Monospaced;
+  font-size: 12px;
+  text-anchor: end;
+  alignment-baseline: middle;
+}

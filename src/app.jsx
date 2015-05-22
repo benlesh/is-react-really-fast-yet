@@ -3,7 +3,7 @@ var d3 = require('d3');
 
 var App = React.createClass({
   data() {
-    return d3.range(0, 1).map(() => d3.range(100).map(x => ({ x, y: Math.random() * 100 })));
+    return d3.range(0, 100).map(() => d3.range(100).map(x => ({ x, y: Math.random() * 100 })));
   },
 
   render() {
@@ -15,15 +15,17 @@ var AppGraph = React.createClass({
   render() {
     var xAxisHeight = 20;
     var yAxisWidth = 50;
-    return (<NfGraph minX="0" maxX="100" topY="100" bottomY="0" width="200" height="100"
-        marginBottom={xAxisHeight}
-        marginLeft={yAxisWidth}
-        marginRight="10"
-        marginTop="10">
+    return (
+    <NfGraph minX="0" maxX="100" topY="100" bottomY="0" width="200" height="100"
+      marginBottom={xAxisHeight}
+      marginLeft={yAxisWidth}
+      marginRight="10"
+      marginTop="10">
         <NfGraphContent>
           <NfLine data={this.props.data}/>
         </NfGraphContent>
       <NfXAxis height={xAxisHeight} count="8" templateFn={(tick) => <text>{tick}</text>}/>
+      <NfYAxis width={yAxisWidth} count="5" templateFn={(tick) => <text>{tick}</text>}/>
     </NfGraph>);
   }
 });
@@ -178,7 +180,6 @@ var NfXAxis = React.createClass({
       var graph = this.props.graph;
       var xOffset = graph.graphX();
       var scaleX = graph.scaleX();
-      var graphHeight = graph.height();
       var y = graph.height() - this.height() + 5;
       return scaleX.ticks(Number(this.props.count) || 8)
         .map(tick => ({
@@ -191,8 +192,6 @@ var NfXAxis = React.createClass({
   },
 
   render() {
-    var graph = this.props.graph;
-    var height = this.height();
     var ticks = this.ticks();
 
     return (<g className="nf-x-axis">{ticks.map(tick => (
@@ -204,7 +203,36 @@ var NfXAxis = React.createClass({
 });
 
 var NfYAxis = React.createClass({
+  width() {
+    return Number(this.props.width);
+  },
 
+  ticks() {
+    if(this.props.graph) {
+    if(this.props.graph) {
+      var graph = this.props.graph;
+      var yOffset = graph.graphY();
+      var scaleY = graph.scaleY();
+      var x = this.width() - 5;
+      return scaleY.ticks(Number(this.props.count) || 5)
+        .map(tick => ({
+          y: scaleY(tick) + yOffset,
+          value: tick,
+          x
+        }));
+    }
+    return [];
+    }
+  },
+
+  render() {
+    var ticks = this.ticks();
+    return (<g className="nf-y-axis">{ticks.map(tick => (
+      <g className="nf-y-axis-tick" transform={`translate(${tick.x},${tick.y})`}>
+        {this.props.templateFn(tick.value)}
+      </g>))
+    }</g>);
+  }
 });
 
 React.render(<App/>, document.querySelector('#app'));
