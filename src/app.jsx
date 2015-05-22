@@ -16,11 +16,11 @@ Router.run(routes, function (Handler) {
 
 var App = React.createClass({
   data() {
-    return d3.range(0, 100).map(() => d3.range(100).map(x => ({ x, y: Math.random() * 100 })));
+    return d3.range(0, 100).map((id) => ({ id, data: d3.range(100).map(x => ({ x, y: Math.random() * 100 })) }));
   },
 
   render() {
-    return (<div>{ this.data().map(d => (<AppGraph data={d}/>)) }</div>);
+    return (<div>{ this.data().map(({id, data}) => (<AppGraph key={id} data={data}/>)) }</div>);
   }
 })
 
@@ -124,41 +124,40 @@ var NfGraph = React.createClass({
     return d3.scale.linear().domain(this.domainY()).range(this.rangeY());
   },
 
+  renderChildren() {
+    return React.Children.map(this.props.children, function(child) {
+      return child.type.needsGraph ? React.cloneElement(child, { graph: this }) : child
+    }.bind(this));
+  },
 
   render() {
-    if(Array.isArray(this.props.children)) {
-      var self = this;
-      this.props.children.forEach(c => c.props.graph = self);
-    } else {
-      this.props.children.props.graph = this;
-    }
     var width = this.width();
     var height = this.height();
 
     return (<svg className="nf-graph" width={width} height={height}>
       <rect className="nf-graph-bg" x="0" y="0" width={width} height={height}/>
-      {this.props.children}
+      {this.renderChildren()}
     </svg>);
   }
 });
 
 var NfGraphContent = React.createClass({
+  renderChildren() {
+    return React.Children.map(this.props.children, function(child) {
+      return  child.type.needsGraph ? React.cloneElement(child, { graph: this.props.graph }) : child;
+    }.bind(this));
+  },
+
   render() {
     var graph = this.props.graph;
-    
-    if(Array.isArray(this.props.children)) {
-      this.props.children.forEach(c => c.props.graph = graph);
-    } else {
-      this.props.children.props.graph = this.props.graph;
-    }
-
     return (<g transform={`translate(${graph.graphX()},${graph.graphY()})`}>
       <rect className="nf-graph-content-bg" x="0" y="0" width={graph.graphWidth()} height={graph.graphHeight()}/>
-      {this.props.children}
+      {this.renderChildren()}
     </g>);
   }
 });
 
+NfGraphContent.needsGraph = true;
 
 var NfLine = React.createClass({
   getPath() {
@@ -182,6 +181,8 @@ var NfLine = React.createClass({
     </g>);
   }
 });
+
+NfLine.needsGraph = true;
 
 var NfXAxis = React.createClass({
   height() {
@@ -207,13 +208,15 @@ var NfXAxis = React.createClass({
   render() {
     var ticks = this.ticks();
 
-    return (<g className="nf-x-axis">{ticks.map(tick => (
-      <g className="nf-x-axis-tick" transform={`translate(${tick.x},${tick.y})`}>
+    return (<g className="nf-x-axis">{ticks.map((tick, i) => (
+      <g key={i} className="nf-x-axis-tick" transform={`translate(${tick.x},${tick.y})`}>
         {this.props.templateFn(tick.value)}
       </g>))
     }</g>);
   }
 });
+
+NfXAxis.needsGraph = true;
 
 var NfYAxis = React.createClass({
   width() {
@@ -240,12 +243,14 @@ var NfYAxis = React.createClass({
 
   render() {
     var ticks = this.ticks();
-    return (<g className="nf-y-axis">{ticks.map(tick => (
-      <g className="nf-y-axis-tick" transform={`translate(${tick.x},${tick.y})`}>
+    return (<g className="nf-y-axis">{ticks.map((tick, i) => (
+      <g key={i} className="nf-y-axis-tick" transform={`translate(${tick.x},${tick.y})`}>
         {this.props.templateFn(tick.value)}
       </g>))
     }</g>);
   }
 });
+
+NfYAxis.needsGraph = true;
 
 React.render(<App/>, document.querySelector('#app'));

@@ -21,10 +21,10 @@ var App = React.createClass({
   displayName: 'App',
 
   data: function data() {
-    return d3.range(0, 100).map(function () {
-      return d3.range(100).map(function (x) {
-        return { x: x, y: Math.random() * 100 };
-      });
+    return d3.range(0, 100).map(function (id) {
+      return { id: id, data: d3.range(100).map(function (x) {
+          return { x: x, y: Math.random() * 100 };
+        }) };
     });
   },
 
@@ -32,8 +32,10 @@ var App = React.createClass({
     return React.createElement(
       'div',
       null,
-      this.data().map(function (d) {
-        return React.createElement(AppGraph, { data: d });
+      this.data().map(function (_ref) {
+        var id = _ref.id;
+        var data = _ref.data;
+        return React.createElement(AppGraph, { key: id, data: data });
       })
     );
   }
@@ -158,15 +160,13 @@ var NfGraph = React.createClass({
     return d3.scale.linear().domain(this.domainY()).range(this.rangeY());
   },
 
+  renderChildren: function renderChildren() {
+    return React.Children.map(this.props.children, (function (child) {
+      return child.type.needsGraph ? React.cloneElement(child, { graph: this }) : child;
+    }).bind(this));
+  },
+
   render: function render() {
-    if (Array.isArray(this.props.children)) {
-      var self = this;
-      this.props.children.forEach(function (c) {
-        return c.props.graph = self;
-      });
-    } else {
-      this.props.children.props.graph = this;
-    }
     var width = this.width();
     var height = this.height();
 
@@ -174,7 +174,7 @@ var NfGraph = React.createClass({
       'svg',
       { className: 'nf-graph', width: width, height: height },
       React.createElement('rect', { className: 'nf-graph-bg', x: '0', y: '0', width: width, height: height }),
-      this.props.children
+      this.renderChildren()
     );
   }
 });
@@ -182,25 +182,24 @@ var NfGraph = React.createClass({
 var NfGraphContent = React.createClass({
   displayName: 'NfGraphContent',
 
+  renderChildren: function renderChildren() {
+    return React.Children.map(this.props.children, (function (child) {
+      return child.type.needsGraph ? React.cloneElement(child, { graph: this.props.graph }) : child;
+    }).bind(this));
+  },
+
   render: function render() {
     var graph = this.props.graph;
-
-    if (Array.isArray(this.props.children)) {
-      this.props.children.forEach(function (c) {
-        return c.props.graph = graph;
-      });
-    } else {
-      this.props.children.props.graph = this.props.graph;
-    }
-
     return React.createElement(
       'g',
       { transform: 'translate(' + graph.graphX() + ',' + graph.graphY() + ')' },
       React.createElement('rect', { className: 'nf-graph-content-bg', x: '0', y: '0', width: graph.graphWidth(), height: graph.graphHeight() }),
-      this.props.children
+      this.renderChildren()
     );
   }
 });
+
+NfGraphContent.needsGraph = true;
 
 var NfLine = React.createClass({
   displayName: 'NfLine',
@@ -230,6 +229,8 @@ var NfLine = React.createClass({
     );
   }
 });
+
+NfLine.needsGraph = true;
 
 var NfXAxis = React.createClass({
   displayName: 'NfXAxis',
@@ -263,16 +264,18 @@ var NfXAxis = React.createClass({
     return React.createElement(
       'g',
       { className: 'nf-x-axis' },
-      ticks.map(function (tick) {
+      ticks.map(function (tick, i) {
         return React.createElement(
           'g',
-          { className: 'nf-x-axis-tick', transform: 'translate(' + tick.x + ',' + tick.y + ')' },
+          { key: i, className: 'nf-x-axis-tick', transform: 'translate(' + tick.x + ',' + tick.y + ')' },
           _this.props.templateFn(tick.value)
         );
       })
     );
   }
 });
+
+NfXAxis.needsGraph = true;
 
 var NfYAxis = React.createClass({
   displayName: 'NfYAxis',
@@ -307,16 +310,18 @@ var NfYAxis = React.createClass({
     return React.createElement(
       'g',
       { className: 'nf-y-axis' },
-      ticks.map(function (tick) {
+      ticks.map(function (tick, i) {
         return React.createElement(
           'g',
-          { className: 'nf-y-axis-tick', transform: 'translate(' + tick.x + ',' + tick.y + ')' },
+          { key: i, className: 'nf-y-axis-tick', transform: 'translate(' + tick.x + ',' + tick.y + ')' },
           _this2.props.templateFn(tick.value)
         );
       })
     );
   }
 });
+
+NfYAxis.needsGraph = true;
 
 React.render(React.createElement(App, null), document.querySelector('#app'));
 
