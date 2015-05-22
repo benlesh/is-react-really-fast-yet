@@ -1,6 +1,19 @@
 var React = require('react');
 var d3 = require('d3');
 
+var Router = require('react-router'); // or var Router = ReactRouter; in browsers
+
+var { DefaultRoute, Link, Route, RouteHandler } = Router;
+
+var routes = (
+  <Route handler={App} path="/">
+  </Route>
+);
+
+Router.run(routes, function (Handler) {
+  React.render(<Handler/>, document.querySelector('#app'));
+});
+
 var App = React.createClass({
   data() {
     return d3.range(0, 100).map(() => d3.range(100).map(x => ({ x, y: Math.random() * 100 })));

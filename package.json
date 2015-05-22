@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "d3": "^3.5.5"
+    "d3": "^3.5.5",
+    "react-router": "^0.13.3"
   }
 }
