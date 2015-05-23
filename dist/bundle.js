@@ -171,10 +171,14 @@ var NfGraph = React.createClass({
     var height = this.height();
 
     return React.createElement(
-      'svg',
-      { className: 'nf-graph', width: width, height: height },
-      React.createElement('rect', { className: 'nf-graph-bg', x: '0', y: '0', width: width, height: height }),
-      this.renderChildren()
+      'div',
+      null,
+      React.createElement(
+        'svg',
+        { className: 'nf-graph', width: width, height: height },
+        React.createElement('rect', { className: 'nf-graph-bg', x: '0', y: '0', width: width, height: height }),
+        this.renderChildren()
+      )
     );
   }
 });
