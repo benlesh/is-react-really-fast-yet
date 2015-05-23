@@ -20,7 +20,7 @@ var App = React.createClass({
   },
 
   render() {
-    return (<div>{ this.data().map(({id, data}) => (<AppGraph key={id} data={data}/>)) }</div>);
+    return (<div><h2>Is React Really Fast Yet?</h2><p>Apparently so...</p>{ this.data().map(({id, data}) => (<AppGraph key={id} data={data}/>)) }</div>);
   }
 })
 

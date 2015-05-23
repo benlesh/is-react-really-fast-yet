@@ -32,6 +32,16 @@ var App = React.createClass({
     return React.createElement(
       'div',
       null,
+      React.createElement(
+        'h2',
+        null,
+        'Is React Really Fast Yet?'
+      ),
+      React.createElement(
+        'p',
+        null,
+        'Apparently so...'
+      ),
       this.data().map(function (_ref) {
         var id = _ref.id;
         var data = _ref.data;
